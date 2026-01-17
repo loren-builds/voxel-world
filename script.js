@@ -11,6 +11,19 @@ let verticalVelocity = 0
 const clock = new THREE.Clock();
 let hotbarIndex = 1;
 
+const hotbarItemGeometry = new THREE.BoxGeometry(0.25, 0.25, 0.25)
+const hotbarItemMaterials = [
+    new THREE.MeshStandardMaterial(),
+    new THREE.MeshStandardMaterial(),
+    new THREE.MeshStandardMaterial(),
+    new THREE.MeshStandardMaterial(),
+    new THREE.MeshStandardMaterial(),
+    new THREE.MeshStandardMaterial()
+];
+const hotbarItem = new THREE.Mesh(hotbarItemGeometry, hotbarItemMaterials)
+player.add(hotbarItem)
+hotbarItem.position.set(1, -1, -1)
+
 const highlightGeometry = new THREE.BoxGeometry(1.01, 1.01, 1.01);
 const edgeGeometry = new THREE.EdgesGeometry(highlightGeometry);
 const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
@@ -69,10 +82,18 @@ window.addEventListener('keydown', (e) => {
 
     if (e.code === "Digit1") {
         hotbarIndex = 1;
+        hotbarItemMaterials.forEach((material) => {
+            material.map = grassTop
+            material.needsUpdate = true;
+        })
     }
 
     if (e.code === "Digit2") {
         hotbarIndex = 2;
+        hotbarItemMaterials.forEach((material) => {
+            material.map = dirtTexture
+            material.needsUpdate = true;
+        })
     }
 
     if (e.code === "Digit3") {
@@ -133,7 +154,7 @@ window.addEventListener('mousemove', (event) => {
 
     camera.rotation.order = "YXZ";
     player.rotation.order = "YXZ"
-    camera.rotation.x = pitch;
+    player.rotation.x = pitch;
     player.rotation.y = yaw;
 });
 
