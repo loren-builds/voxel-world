@@ -4,9 +4,20 @@ scene.add(player)
 const world = new THREE.Group()
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 25);
 player.add(camera)
-camera.position.set(0, 1.75, 0)
+camera.position.set(0, -.25, 0)
 const renderer = new THREE.WebGLRenderer();
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+let verticalVelocity = 0
+const clock = new THREE.Clock();
+let hotbarIndex = 1;
+
+const highlightGeometry = new THREE.BoxGeometry(1.01, 1.01, 1.01);
+const edgeGeometry = new THREE.EdgesGeometry(highlightGeometry);
+const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+const highlightBox = new THREE.LineSegments(edgeGeometry, lineMaterial);
+
+scene.add(highlightBox);
+highlightBox.visible = false;
 
 const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
 
@@ -16,6 +27,7 @@ scene.add(sunLight);
 
 let grounded = true;
 let crouching = false;
+let sprinting = false;
 
 const raycaster = new THREE.Raycaster();
 const centerScreen = new THREE.Vector2(0, 0);
@@ -51,6 +63,50 @@ window.addEventListener('keydown', (e) => {
         crouching = true;
         console.log("crouching")
     }
+    if (e.code === "Space" && grounded) {
+        verticalVelocity += .2
+    }
+
+    if (e.code === "Digit1") {
+        hotbarIndex = 1;
+    }
+
+    if (e.code === "Digit2") {
+        hotbarIndex = 2;
+    }
+
+    if (e.code === "Digit3") {
+        hotbarIndex = 3;
+    }
+
+    if (e.code === "Digit4") {
+        hotbarIndex = 4;
+    }
+
+    if (e.code === "Digit5") {
+        hotbarIndex = 5;
+    }
+
+    if (e.code === "Digit6") {
+        hotbarIndex = 6;
+    }
+
+    if (e.code === "Digit7") {
+        hotbarIndex = 7;
+    }
+
+    if (e.code === "Digit8") {
+        hotbarIndex = 8;
+    }
+
+    if (e.code === "Digit9") {
+        hotbarIndex = 9;
+    }
+
+    if (e.code === "Digit0") {
+        hotbarIndex = 0;
+    }
+
     keys[e.code] = true;
 });
 
@@ -85,10 +141,9 @@ window.addEventListener('mousedown', (event) => {
     if (document.pointerLockElement === renderer.domElement && event.button === 0) {
         
         raycaster.setFromCamera(centerScreen, camera);
-        const intersects = raycaster.intersectObjects(scene.children);
+        const intersects = raycaster.intersectObjects(world.children);
 
         if (intersects.length > 0) {
-            console.log("test")
             const block = intersects[0].object;
             world.remove(block);
                 
@@ -101,7 +156,7 @@ window.addEventListener('mousedown', (event) => {
     if (document.pointerLockElement === renderer.domElement && event.button === 2) {
     
         raycaster.setFromCamera(centerScreen, camera);
-        const intersects = raycaster.intersectObjects(scene.children);
+        const intersects = raycaster.intersectObjects(world.children);
 
         if (intersects.length > 0) {
             const hit = intersects[0];
@@ -113,7 +168,34 @@ window.addEventListener('mousedown', (event) => {
             const newY = block.position.y + normal.y;
             const newZ = block.position.z + normal.z;
 
-            createLog(newX, newY, newZ);
+            if (hotbarIndex === 1) {
+                createGrass(newX, newY, newZ)
+            }
+
+            if (hotbarIndex === 2) {
+                createDirt(newX, newY, newZ)
+            }
+
+            if (hotbarIndex === 3) {
+                createLog(newX, newY, newZ)
+            }
+
+            if (hotbarIndex === 4) {
+                createStone(newX, newY, newZ)
+            }
+
+            if (hotbarIndex === 5) {
+                createSand(newX, newY, newZ)
+            }
+
+            if (hotbarIndex === 6) {
+                createLeaves(newX, newY, newZ)
+            }
+
+            if (hotbarIndex === 7) {
+                createPlanks(newX, newY, newZ)
+            }
+
         }
     }
 });
@@ -131,6 +213,7 @@ const logTop = loadPixelTexture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA
 const stoneTexture = loadPixelTexture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAVUlEQVR4AVTOgQkAMQhD0eIOnaxLdHeHuOMJgi18TDRK45zz3XsLGu3V2HuvfjT4zFyIaTR4CKICRGM4g8FgDoT1UH/QEOjamn8uGMCmiudCD2zS+AEAAP//DpfCrwAAAAZJREFUAwDBqEQMMlso/wAAAABJRU5ErkJggg==")
 const sandTexture = loadPixelTexture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAYElEQVR4AVyNyxGAIAxEnZy8a5H2YEn2oDer0Ts34GXYDJ9hSXZ5EHufM/e6r8M9FdnSVvp+79Z9i0pv84W8U/UwqFpjywscRiiEFjiMUAiAeBAjMArpEQ/8BxkAQglfAAAA///oTAVgAAAABklEQVQDABXQQav0Sv3XAAAAAElFTkSuQmCC")
 const leafTexture = loadPixelTexture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAXUlEQVR4AVyNQQrAIBADZUvPQnvpK/oD//8ezyLqrAQWxZg4G9Ty/46nfAOPErO0Vq8tXfleaW8yjJsXIgBqCPdCBBQkuNGKgCyGG60TiuH+BQUJqOwvcAAYKMthEwAA//9gBeXdAAAABklEQVQDACgbMc55FkgrAAAAAElFTkSuQmCC")
+const plankTexture = loadPixelTexture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAAB1JREFUKFNjLIy1/M+ABzCmBRnhV0DQBIIKBoEVAA9BD+JoUwO2AAAAAElFTkSuQmCC")
 
 const grassMaterials = [
     new THREE.MeshStandardMaterial({ map: grassSide }),
@@ -154,6 +237,14 @@ const dirtMaterial = new THREE.MeshStandardMaterial({map: dirtTexture})
 const stoneMaterial = new THREE.MeshStandardMaterial({map: stoneTexture})
 const sandMaterial = new THREE.MeshStandardMaterial({map: sandTexture})
 const leafMaterial = new THREE.MeshStandardMaterial({map: leafTexture})
+const plankMaterial = new THREE.MeshStandardMaterial({map: plankTexture})
+
+function createPlanks(x, y, z) {
+    const block = new THREE.Mesh(geometry, plankMaterial)
+    block.userData.type = "planks"
+    block.position.set(x, y, z)
+    world.add(block)
+}
 
 function createLeaves(x, y, z) {
     const block = new THREE.Mesh(geometry, leafMaterial);
@@ -199,8 +290,8 @@ function createGrass(x, y, z) {
 let bx = 0
 let bz = 0
 
-for (let i = 0; i < 100; i++) {
-    for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 25; i++) {
         createGrass(bx, -.5, bz);
         bz += 1
     }
@@ -208,15 +299,58 @@ for (let i = 0; i < 100; i++) {
     bz = 0
 }
 
+function checkGround() {
+    downRaycaster.set(player.position, downVector)
+    const intersections = downRaycaster.intersectObjects(world.children)
+    if (intersections.length > 0) {
+        const distance = intersections[0].distance
+        if (distance > 2) {
+            grounded = false
+        }
+        if (distance <= 2) {
+            grounded = true
+            player.position.y = intersections[0].point.y + 2
+        }
+    } else {
+        grounded = false
+    }
+}
+
 scene.add(world)
-player.position.set(10, 0, 10)
-let distance = 10
-const rayOrigin = new THREE.Vector3();
+player.position.set(3, 2, 3)
 function animate() {
     requestAnimationFrame(animate);
 
+    raycaster.setFromCamera(centerScreen, camera);
+
+    // 2. See what we hit (use your list of blocks)
+    const intersects = raycaster.intersectObjects(world.children);
+
+    if (intersects.length > 0) {
+        const target = intersects[0].object;
+
+        // 3. Move the highlight box to the block's position
+        highlightBox.position.copy(target.position);
+        highlightBox.visible = true;
+    } else {
+        highlightBox.visible = false;
+    }
+
+    const delta = clock.getDelta() / 0.016666667;
+    checkGround()
+    if (!grounded) {
+        verticalVelocity -= .01 * delta
+    }
+
+    player.position.y += verticalVelocity * delta
+
+    checkGround()
+    if (grounded) {
+        verticalVelocity = 0
+    }
+
     const direction = new THREE.Vector3();
-    const moveSpeed = 0.1
+    const moveSpeed = 0.1 * delta
     
     camera.getWorldDirection(direction);
 

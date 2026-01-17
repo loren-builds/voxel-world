@@ -1,2 +1,16 @@
 body { margin: 0; background-color: #000; overflow: hidden; }
 canvas { display: block; }
+#crosshair {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        background-color: white;
+        /* This centers the element perfectly */
+        transform: translate(-50%, -50%);
+        /* Makes it a cross shape using a clip-path or simple borders */
+        clip-path: polygon(45% 0%, 55% 0%, 55% 45%, 100% 45%, 100% 55%, 55% 55%, 55% 100%, 45% 100%, 45% 55%, 0% 55%, 0% 45%, 45% 45%);
+        pointer-events: none; /* Allows clicks to pass through to the game */
+        z-index: 100;
+    }
